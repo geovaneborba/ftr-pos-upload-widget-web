@@ -5,6 +5,7 @@ import { uploadFileToStorage } from '../http/upload-file-to-storage'
 import { CanceledError } from 'axios'
 import { useShallow } from 'zustand/shallow'
 import { compressImage } from '../utils/compress-image'
+import { v4 as uuid } from 'uuid'
 
 export type Upload = {
   name: string
@@ -124,7 +125,7 @@ export const useUploads = create<UploadState, [['zustand/immer', never]]>(
 
     function addUploads(files: File[]) {
       for (const file of files) {
-        const uploadId = crypto.randomUUID()
+        const uploadId = uuid()
 
         const upload: Upload = {
           name: file.name,
