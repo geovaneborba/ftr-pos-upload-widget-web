@@ -4,7 +4,8 @@ on:
     branches:
       - master
 env:
-  AWS_S3_BUCKET: ftr-web-upload-widget-static
+  AWS_S3_BUCKET_STATIC: ftr-web-upload-widget-static
+  AWS_S3_BUCKET_CDN: ftr-web-upload-widget-cdn
   SOURCE_DIST_FOLDER: ./dist
 jobs:
   deploy:
@@ -38,7 +39,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Sync to aws s3 bucket
-        id: upload-to-s3
+      - name: Sync to aws s3 bucket static
+        id: upload-to-s3-static
         run: |
-          aws s3 sync ${{ env.SOURCE_DIST_FOLDER }} s3://${{ env.AWS_S3_BUCKET }} --delete --exclude "*.git*"
+          aws s3 sync ${{ env.SOURCE_DIST_FOLDER }} s3://${{ env.AWS_S3_BUCKET_STATIC }} --delete --exclude "*.git*"
+
+      - name: Sync to aws s3 bucket cdn
+        id: upload-to-s3-cdn
+        run: |
+          aws s3 sync ${{ env.SOURCE_DIST_FOLDER }} s3://${{ env.AWS_S3_BUCKET_CDN }} --delete --exclude "*.git*"
+
+      - name: Invalidate CloudFront cache
+        id: invalidate-cloudfront-cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
