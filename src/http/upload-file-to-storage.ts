@@ -17,20 +17,17 @@ export async function uploadFileToStorage(
 
   data.append('file', file)
 
-  //http://localhost:3333/uploads
-  const response = await axios.post(
-    'https://ftr-pos-upload-widget-server.onrender.com/uploads',
-    data,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      signal: opts?.signal,
-      onUploadProgress(progressEvent) {
-        onProgress(progressEvent.loaded)
-      },
-    }
-  )
+  const baseUrl = import.meta.env.VITE_API_URL
+
+  const response = await axios.post(baseUrl, data, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+    signal: opts?.signal,
+    onUploadProgress(progressEvent) {
+      onProgress(progressEvent.loaded)
+    },
+  })
 
   return { url: response.data.url }
 }
